@@ -9,12 +9,7 @@ It handles protocol recognition, URI parsing, and dispatching to appropriate han
 from __future__ import annotations
 import re, urllib.parse, typing as t
 
-PREFIX = "schizo://"
-
-class DEFAULT:
-    ENDPOINT = "default"
-
-
+from schizoproto.core.protocol.globals import _handlers, PREFIX, DEFAULT
 
 class SchizoParse:
     """
@@ -25,7 +20,7 @@ class SchizoParse:
         self,
         raw: str,
         endpoint: str,
-        params: Dict[str, str],
+        params: t.Dict[str, str],
         fragment: str = ""
     ):
         self.raw = raw
@@ -61,7 +56,29 @@ def parse(uri: str) -> t.Optional[SchizoParse]:
     Returns:
         SchizoParse: Parsed URI object or None if invalid
     """
-    raise NotImplementedError
+    if not isprada(uri):
+        return None
+
+    path = uri[len(PREFIX):]
+
+    endpointpart, querypart = path.split('?', 1) if ('?' in path) else (path, "")
+
+    fragment = ""
+    if ('#' in endpointpart):
+        endpointpart, fragment = endpointpart.split('#', 1)
+    elif ('#' in querypart):
+        querypart, fragment = querypart.split('#', 1)
+
+    endpoint = (endpointpart.strip() or DEFAULT.ENDPOINT)
+
+    params = {}
+    if querypart:
+        queryparams = urllib.parse.parse_qs(querypart)
+        params = {k:v[0] if (len(v) == 1) else v for k,v in queryparams.items()} # should update to handle lists
+
+    return SchizoParse(
+        uri, endpoint, params, fragment
+    )
 
 
 def register(endpoint: str, handler: t.Callable) -> None:
@@ -72,7 +89,7 @@ def register(endpoint: str, handler: t.Callable) -> None:
         endpoint: The endpoint name to register
         handler: Function to handle requests to this endpoint
     """
-    raise NotImplementedError
+    _handlers[endpoint] = handler
 
 def handle(uri: str, **context) -> t.Any:
     """
@@ -85,4 +102,24 @@ def handle(uri: str, **context) -> t.Any:
     Returns:
         Any: Result from the handler function
     """
-    raise NotImplementedError
+    parsed = parse(uri)
+    if not parsed:
+        raise ValueError(f"Invalid schizo:// URI: {uri}")
+
+    handler = _handlers.get(parsed.endpoint, _handlers.get(DEFAULT.ENDPOINT))
+    if not handler:
+        raise NotImplementedError(f"No handler for endpoint: {parsed.endpoint}")
+
+    return handler(parsed, **context)
+
+
+def _defaulthandler(parsed: SchizoParse, **context) -> t.Dict[str, t.Any]:
+    """Default handler for testing the protocol."""
+    return {
+        "status": "processed",
+        "endpoint": parsed.endpoint,
+        "params": parsed.params,
+        "message": "schizo:// protocol acknowledged"
+    }
+
+register(DEFAULT.ENDPOINT, _defaulthandler)

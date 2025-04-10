@@ -7,7 +7,9 @@ with browsers and operating systems.
 """
 from __future__ import annotations
 from re import L
-import os, sys, platform, typing as t
+import os, sys, json, platform, typing as t
+
+from schizoproto.core.protocol.registration.common import HTML, JS, SHELL, MANIFEST
 
 def detect() -> str:
     return platform.system().lower()
@@ -21,24 +23,8 @@ def browserjs() -> str:
         str: JavaScript code for protocol registration
     """
 
-    """
-        try {
-            // Modern approach for PWAs and extensions
-            if (navigator.registerProtocolHandler) {
-                navigator.registerProtocolHandler(
-                    'schizo',
-                    window.location.origin + '/handler?uri=%s',
-                    'Schizo Protocol Handler'
-                );
-                console.log('Registered schizo:// protocol handler');
-            } else {
-                console.warn('This browser does not support protocol registration');
-            }
-        } catch (e) {
-            console.error('Failed to register protocol:', e);
-        }
-    """
-    raise NotImplementedError
+
+    return JS.REGISTER
 
 
 def systemcommand() -> t.Optional[str]:
@@ -48,7 +34,8 @@ def systemcommand() -> t.Optional[str]:
     Returns:
         Optional[str]: Shell command to register the protocol or None if not supported
     """
-    raise NotImplementedError
+    platform = detect()
+    return SHELL.Match(platform)
 
 def browserextensionmanifest() -> t.Dict:
     """
@@ -57,7 +44,7 @@ def browserextensionmanifest() -> t.Dict:
     Returns:
         Dict: Extension manifest structure
     """
-    raise NotImplementedError
+    return MANIFEST.BROWSEREXTENSION
 
 
 def browserextensionjs() -> t.Dict[str, str]:
@@ -67,7 +54,11 @@ def browserextensionjs() -> t.Dict[str, str]:
     Returns:
         Dict[str, str]: Mapping of filename to JS content
     """
-    raise NotImplementedError
+    return {
+        'background.js': JS.EXTENSIONS.BACKGROUND,
+        'content.js': JS.EXTENSIONS.CONTENT,
+        'handler.js': JS.EXTENSIONS.HANDLER
+    }
 
 
 def creatextensionfiles(directory: str) -> t.List[str]:
@@ -80,4 +71,28 @@ def creatextensionfiles(directory: str) -> t.List[str]:
     Returns:
         List[str]: List of created file paths
     """
-    raise NotImplementedError
+    os.makedirs(directory, exist_ok=True)
+
+    manifestpath = os.path.join(directory, 'manifest.json')
+    with open (manifestpath, 'w') as f:
+        json.dump(browserextensionmanifest(), f, indent=2)
+
+    jsfiles = browserextensionjs()
+    createdfiles = [manifestpath]
+
+    for filename, content in jsfiles.items():
+        filepath = os.path.join(directory, filename)
+        with open(filepath, 'w') as f:
+            f.write(content)
+        createdfiles.append(filepath)
+
+    handlerpath = os.path.join(directory, 'handler.html')
+    popuppath = os.path.join(directory, 'popup.html')
+    with open(handlerpath, 'w') as f:
+        f.write(HTML.HANDLER)
+    createdfiles.append(handlerpath)
+    with open(popuppath, 'w') as f:
+        f.write(HTML.POPUP)
+    createdfiles.append(popuppath)
+
+    return createdfiles

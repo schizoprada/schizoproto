@@ -1,0 +1,34 @@
+src/schizoproto
+├── __init__.py
+├── config
+│   └── __init__.py
+├── core
+│   ├── __init__.py
+│   ├── protocol
+│   │   ├── __init__.py
+│   │   ├── globals.py
+│   │   ├── handler.py
+│   │   └── registration
+│   │       ├── __init__.py
+│   │       ├── common.py
+│   │       └── methods.py
+│   ├── render
+│   │   ├── __init__.py
+│   │   ├── base.py
+│   │   ├── engine.py
+│   │   ├── mutators
+│   │   │   ├── __init__.py
+│   │   │   ├── dom.py
+│   │   │   ├── events.py
+│   │   │   └── text.py
+│   │   ├── targets
+│   │   │   ├── __init__.py
+│   │   │   ├── dom.py
+│   │   │   └── text.py
+│   │   └── types.py
+│   └── transport
+├── declarative
+├── engine
+└── logs.py
+
+11 directories, 21 files
