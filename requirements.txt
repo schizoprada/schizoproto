@@ -1,3 +1,7 @@
 nltk
 transformers
 gensim
+typer
+rich
+typer
+questionary

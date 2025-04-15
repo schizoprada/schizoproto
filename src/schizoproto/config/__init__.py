@@ -1,4 +1,7 @@
 # ~/schizoproto/src/schizoproto/config/__init__.py
 
 import os
-SCHIZOPROTODIR = os.path.expanduser("~/.schizoproto")
+
+DEVMODE = bool(int(os.getenv("SCHIZOPROTOENV", 0)))
+
+SCHIZOPROTODIR = os.path.expanduser("~/.schizoprotodev") if DEVMODE else os.path.expanduser("~/.schizoproto")

@@ -20,6 +20,7 @@ src/schizoproto
 │   │   │   ├── __init__.py
 │   │   │   ├── dom.py
 │   │   │   ├── events.py
+│   │   │   ├── subs.py
 │   │   │   └── text.py
 │   │   ├── targets
 │   │   │   ├── __init__.py
@@ -31,4 +32,4 @@ src/schizoproto
 ├── engine
 └── logs.py
 
-11 directories, 21 files
+11 directories, 22 files

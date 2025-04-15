@@ -33,6 +33,10 @@
 
 ## Today's Implementation Goals
 
+### 0. Internal Uninstall Command
+*ensure that its not available in distribution versions as well*
+
+
 ### 1. Core Mutators
 - [x] Implement Text Mutation System
   - [x] Character corruption (CharacterCorruptor)

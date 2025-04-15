@@ -16,12 +16,18 @@
   - Progressive corruption rates
   - Position-aware mutation
   - Mood-based transformation selection
+- Developer tools:
+  - Uninstall functionality for development builds
+  - Typer-based CLI with interactive prompts
+  - System cleanup utilities
 
 ### Technical
 - Integrated NLTK and transformers libraries
 - Implemented caching for substitution results
 - Added comprehensive error handling
 - Position-aware mutation probability scaling
+- Development/production mode configuration
+- Platform-specific protocol unregistration
 
 ### Next
 - DOM mutation implementation
